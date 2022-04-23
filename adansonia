@@ -1,0 +1,97 @@
+import 'package:chewie/chewie.dart';
+import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+
+class Thumbnails extends StatefulWidget {
+  const Thumbnails({Key? key}) : super(key: key);
+
+  @override
+  State<Thumbnails> createState() => _ThumbnailsState();
+}
+
+class _ThumbnailsState extends State<Thumbnails> {
+  List<String> videoURLS = [
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+  ];
+  @override
+  Widget build(BuildContext context) {
+    int i = 0;
+    debugPrint('Thumbnails');
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            SizedBox(
+                height: 500,
+                child: Video(VideoPlayerController.network(videoURLS[i]), true)),
+            SizedBox(
+              height: 100,
+              width: double.infinity,
+              child: ListView.builder(
+                  itemCount: 4,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () => setState(() => i = index),
+                        child: Container(
+                          width: 200,
+                          color: Colors.amber,
+                          child: Center(child: Text((index + 1).toString())),
+                        ),
+                      ),
+                    );
+                  }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Video extends StatefulWidget {
+  final VideoPlayerController videoPlayerController;
+  final bool loop;
+  const Video(this.videoPlayerController, this.loop, {Key? key})
+      : super(key: key);
+
+  @override
+  State<Video> createState() => _VideoState();
+}
+
+class _VideoState extends State<Video> {
+  ChewieController? _chewieController;
+
+  //Init
+  @override
+  void initState() {
+    debugPrint('initState');
+    _chewieController = ChewieController(
+        videoPlayerController: widget.videoPlayerController,
+        looping: widget.loop,
+        autoInitialize: true,
+        aspectRatio: 16 / 16);
+    super.initState();
+  }
+
+  //Build
+  @override
+  Widget build(BuildContext context) {
+    debugPrint('Video');
+    return Chewie(controller: _chewieController!);
+  }
+
+  //Dispose
+  @override
+  void dispose() {
+    debugPrint('Video Dispose');
+    widget.videoPlayerController.dispose();
+    _chewieController?.dispose();
+    super.dispose();
+  }
+}
